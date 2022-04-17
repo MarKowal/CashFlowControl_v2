@@ -1,0 +1,37 @@
+body {
+    background-image: url(img/euros.jpg);
+}
+
+h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    font-style: italic;
+    background-color: #E63946;
+    color: white;
+}
+
+.navbar-brand {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    font-style: italic;
+    font-size: x-large;
+}
+
+.navbar-nav {
+    font-family: 'Montserrat', sans-serif;
+    font-size:larger;
+}
+
+#logoCFC {
+    font-family: 'Montserrat', sans-serif;
+    font-style: italic;
+    color: #E63946;
+    font-weight: bold;
+}
+
+#plainText {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    color: #1D3557;
+
+} 
