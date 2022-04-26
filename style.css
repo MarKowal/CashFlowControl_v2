@@ -10,13 +10,6 @@ h1 {
     color: white;
 }
 
-.navbar-brand {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: bold;
-    font-style: italic;
-    font-size: x-large;
-}
-
 .navbar-nav {
     font-family: 'Montserrat', sans-serif;
     font-size:larger;
@@ -35,3 +28,7 @@ h1 {
     color: #1D3557;
 
 } 
+
+#BSbutton:hover {
+    color: white;
+}
