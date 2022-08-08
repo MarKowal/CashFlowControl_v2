@@ -19,11 +19,21 @@
     else {
         $login = $_POST['login'];
         $password = $_POST['password'];
+
+        $login = htmlentities($login, ENT_QUOTES, "UTF-8");
+        $password = htmlentities($password, ENT_QUOTES, "UTF-8");
+
+
+
         //zapytanie SQL to takze lancuch string
         //zapytanie zamykam w cudzyslow, a zmienne w apostrofy
-        $sql = "SELECT * FROM users WHERE username='$login' AND password='$password'";
+        //$sql = "SELECT * FROM users WHERE username='$login' AND password='$password'";
         //if na wypadek jezeli zapytanie $sql jest blednie napisane:
-        if($sqlResult = $connection->query($sql)){
+        if($sqlResult = $connection->query(sprintf(
+            "SELECT * FROM users WHERE username='%s' AND password='%s'",
+            mysqli_real_escape_string($connection, $login),
+            mysqli_real_escape_string($connection, $password)
+        ))){
             $numberOfUsers = $sqlResult->num_rows;
             if($numberOfUsers>0){
                 //isLogged to FLAGA spr czy user jest zalogowany:
