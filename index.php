@@ -98,21 +98,25 @@
                         <p id="plainText" class="text-center pb-3"><span id="logoCFC">$CashFlowControl</span> is the web application which gives you great opportunity to:</p>
                         <p id="plainText">- take control of your incomes,</p>
                         <p id="plainText">- take control of your expenditures,</p>
-                        <p id="plainText" class="fw-bolder">- take control of your cash flow!</p>
+                        <p id="plainText" class="fw-bolder">- take control of your Cash Flow!</p>
                         <p id="logoCFC" class="text-center pt-5">Start changing your personal finances:</p>
                     </div>
                 </div>
             </div>
     </section>
-
     <section>
         <div class="container">
             <div class="row">
                 <div class="col d-flex justify-content-evenly p-5" style="background-color: #F1FAEE">
-                    <button type="button" class="btn btn-danger btn-lg p-4" >REGISTER</button>
-                    <button type="button" class="btn btn-danger btn-lg p-4" disabled>LOG IN</button>
+                    <a href="registration.php">
+                        <button type="button" class="btn btn-danger btn-lg p-4">REGISTER</button>
+                    </a>
+                    <a href="login.php">
+                        <button type="button" class="btn btn-danger btn-lg p-4">LOG IN</button>
+                    </a>
                 </div>
             </div>
+        </div>
     </section>
     
     <footer>

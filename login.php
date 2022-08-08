@@ -1,3 +1,13 @@
+<?php
+    session_start();
+
+    //jezeli user jest juz zalogowany to pomijam te strone:
+    if(isset($_SESSION['isLogged']) && $_SESSION['isLogged']==true){
+        header('Location: mainMenu.php');
+        exit();
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,7 +100,7 @@
         </div>
     </nav>
 
-    <form>
+    <form action="loginRequest.php" method="post">
         <div class="container ">
             <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
                 <h2 class="display-4 py-3 mb-0 d-flex justify-content-center" style="background-color: #F1FAEE">Log in:</h2>
@@ -103,7 +113,7 @@
                                 </svg>
                             </span>
                         </div>
-                        <input type="text" class="form-control" placeholder="type your login (min. 3 characters)" minlength="3" required>
+                        <input type="text" class="form-control" placeholder="type your login (min. 3 characters)" minlength="3" required name="login">
                     </div>   
                     <div class="input-group py-2">
                         <div class="input-group-prepened">
@@ -113,7 +123,7 @@
                                 </svg>
                             </span>
                         </div>
-                        <input type="password" class="form-control" placeholder="type your password (min. 3 characters)" required minlength="3" required>
+                        <input type="password" class="form-control" placeholder="type your password (min. 3 characters)" required minlength="3" required name="password">
                     </div>     
                     <div class="col d-flex justify-content-evenly py-5">
                         <button class="btn btn-lg btn-danger">Log in
@@ -122,7 +132,6 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z"/>
                             </svg>
                         </button>
-
                         <button class="btn btn-lg btn-secondary">Cancel
                             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -134,6 +143,12 @@
             </div>       
         </div>
     </form>
+
+    <?php
+        if(isset($_SESSION['error'])){
+            echo $_SESSION['error'];
+        }
+    ?>
    
     <footer>
         <div class="container">
