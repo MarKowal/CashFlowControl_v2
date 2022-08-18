@@ -1,3 +1,53 @@
+<?php
+    session_start();
+
+    //w tym ifie sprawdzam poprawnosc danych z formularza:
+    if(isset($_POST['email'])){
+        //ustawiam FLAGE przed testami:
+        $goodInputs = true;
+
+        $nick = $_POST['nick'];
+        if((strlen($nick)<3) || (strlen($nick)>20)){
+            $goodInputs = false;
+            $_SESSION['e_nick'] = "Login must have between 3 and 20 characters.";
+        }
+        if(ctype_alnum($nick) == false){
+            $goodInputs = false;
+            $_SESSION['e_nick'] = "Login can be made up only of letters and numbers (without polish characters).";
+        }
+
+        $email = $_POST['email'];
+        $emailClean = filter_var($email, FILTER_SANITIZE_EMAIL);
+        if((filter_var($emailClean, FILTER_VALIDATE_EMAIL) == false) || ($emailClean!=$email)){
+            $goodInputs = false;
+            $_SESSION['e_email'] = "Type correct address email.";
+        }
+
+        $password1 = $_POST['password1'];
+        $password2 = $_POST['password2'];
+
+        if((strlen($password1)<8) || (strlen($password1)>20)){
+            $goodInputs = false;
+            $_SESSION['e_password'] = "Password must have between 8 and 20 characters.";
+        }
+        if($password1!=$password2){
+            $goodInputs = false;
+            $_SESSION['e_password'] = "Passwords are not the same!";
+        }
+
+        $password_hash = password_hash($password1, PASSWORD_DEFAULT);
+        //echo $password_hash; exit();
+        
+
+        if($goodInputs == true){
+            //INSERT SQL
+            echo "Poprawna walidacja danych!";
+            exit();
+        }
+    }
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,7 +140,7 @@
         </div>
     </nav>
 
-    <form>
+    <form method="post">
         <div class="container ">
             <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
                 <h2 class="display-4 py-3 mb-0 d-flex justify-content-center" style="background-color: #F1FAEE">Registration:</h2>
@@ -103,8 +153,14 @@
                                 </svg>
                             </span>
                         </div>
-                        <input type="text" class="form-control" placeholder="type your login (min. 3 characters)" minlength="3" required>
+                        <input type="text" class="form-control" placeholder="type your login (min. 3 characters)" minlength="3" required name="nick">
                     </div>   
+                    <?php
+                        if(isset($_SESSION['e_nick'])){
+                            echo '<div>'.$_SESSION['e_nick'].'</div>';
+                            unset($_SESSION['e_nick']);
+                        }
+                    ?>
                     <div class="input-group py-2">
                         <div class="input-group-prepened">
                             <span class="input-group-text">
@@ -113,8 +169,14 @@
                                 </svg>
                             </span>
                         </div>
-                        <input type="email" class="form-control" placeholder="type your email" minlength="3" required>
+                        <input type="email" class="form-control" placeholder="type your email" minlength="3" required name="email">
                     </div>   
+                    <?php
+                        if(isset($_SESSION['e_email'])){
+                            echo '<div>'.$_SESSION['e_email'].'</div>';
+                            unset($_SESSION['e_email']);
+                        }
+                    ?>
                     <div class="input-group py-2">
                         <div class="input-group-prepened">
                             <span class="input-group-text">
@@ -123,8 +185,14 @@
                                 </svg>
                             </span>
                         </div>
-                        <input type="password" class="form-control" placeholder="type your password (min. 3 characters)" required minlength="3" required>
+                        <input type="password" class="form-control" placeholder="type your password (min. 8 characters)" required minlength="8" required name="password1">
                     </div>   
+                    <?php
+                        if(isset($_SESSION['e_password'])){
+                            echo '<div>'.$_SESSION['e_password'].'</div>';
+                            unset($_SESSION['e_password']);
+                        }
+                    ?>
                     <div class="input-group py-2">
                         <div class="input-group-prepened">
                             <span class="input-group-text">
@@ -133,7 +201,7 @@
                                 </svg>
                             </span>
                         </div>
-                        <input type="password" class="form-control" placeholder="confirm your password" required minlength="3" required>
+                        <input type="password" class="form-control" placeholder="confirm your password" required minlength="8" required name="password2">
                     </div>   
                     <div class="col d-flex justify-content-evenly py-5">
                         <button class="btn btn-lg btn-danger">Submit
