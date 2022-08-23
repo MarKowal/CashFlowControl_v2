@@ -38,11 +38,65 @@
         $password_hash = password_hash($password1, PASSWORD_DEFAULT);
         //echo $password_hash; exit();
         
+        require_once "connect.php";
+        mysqli_report(MYSQLI_REPORT_STRICT);
 
-        if($goodInputs == true){
-            //INSERT SQL
-            echo "Poprawna walidacja danych!";
-            exit();
+        try{
+            $connection = new mysqli($host, $db_user, $db_password, $db_name);
+            if($connection->connect_errno != 0){
+                throw new Exception(mysqli_connect_errno());
+            }
+            else{
+                $result = $connection->query("SELECT id FROM users WHERE email='$email'");
+
+                if(!$result){
+                    throw new Exception($connection->error);
+                } else{
+                    $how_many_emails = $result->num_rows;
+                    if($how_many_emails>0){
+                        $goodInputs = false;
+                        $_SESSION['e_email'] = "Such email already exists in the data base!";
+                    }
+                }
+
+                 $connection = new mysqli($host, $db_user, $db_password, $db_name);
+            }
+            if($connection->connect_errno != 0){
+                throw new Exception(mysqli_connect_errno());
+            }
+            else{
+                //czy taki email juz istnieje w bazie?
+                $result = $connection->query("SELECT id FROM users WHERE email='$email'");
+                if(!$result) throw new Exception($connection->error);
+                $how_many_emails = $result->num_rows;
+                if($how_many_emails>0){
+                    $goodInputs = false;
+                    $_SESSION['e_email'] = "Such email already exists in the data base!";
+                }
+                
+                //czy taki login juz istnieje w bazie?
+                $result = $connection->query("SELECT id FROM users WHERE username='$nick'");
+                if(!$result) throw new Exception($connection->error);
+                $how_many_nicks = $result->num_rows;
+                if($how_many_nicks>0){
+                    $goodInputs = false;
+                    $_SESSION['e_nick'] = "Such nick already exists in the data base!";
+                }
+
+                if($goodInputs == true){
+                    if($connection->query("INSERT INTO users VALUES(NULL, '$nick', '$password_hash', '$email')")){
+                        header('Location: login.php');
+                    } else {
+                        throw new Exception($connection->error);
+                    }
+                }
+
+                $connection->close();
+            }
+        } 
+        catch(Exception $e){
+            echo '<span style="color:red;">Server error! Please register later.</span>';
+            //echo $e;
         }
     }
 ?>
@@ -202,7 +256,7 @@
                             </span>
                         </div>
                         <input type="password" class="form-control" placeholder="confirm your password" required minlength="8" required name="password2">
-                    </div>   
+                    </div> 
                     <div class="col d-flex justify-content-evenly py-5">
                         <button class="btn btn-lg btn-danger">Submit
                             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-check-square" viewBox="0 0 16 16">
