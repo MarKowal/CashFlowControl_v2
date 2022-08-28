@@ -47,24 +47,6 @@
                 throw new Exception(mysqli_connect_errno());
             }
             else{
-                $result = $connection->query("SELECT id FROM users WHERE email='$email'");
-
-                if(!$result){
-                    throw new Exception($connection->error);
-                } else{
-                    $how_many_emails = $result->num_rows;
-                    if($how_many_emails>0){
-                        $goodInputs = false;
-                        $_SESSION['e_email'] = "Such email already exists in the data base!";
-                    }
-                }
-
-                 $connection = new mysqli($host, $db_user, $db_password, $db_name);
-            }
-            if($connection->connect_errno != 0){
-                throw new Exception(mysqli_connect_errno());
-            }
-            else{
                 //czy taki email juz istnieje w bazie?
                 $result = $connection->query("SELECT id FROM users WHERE email='$email'");
                 if(!$result) throw new Exception($connection->error);
@@ -84,7 +66,27 @@
                 }
 
                 if($goodInputs == true){
-                    if($connection->query("INSERT INTO users VALUES(NULL, '$nick', '$password_hash', '$email')")){
+                    if($connection->query(
+                        "INSERT INTO users VALUES(NULL, '$nick', '$password_hash', '$email')")){
+                        
+                        $newUserIdQuery = $connection->query("SELECT id FROM `users` ORDER BY id DESC LIMIT 1");
+                        $newUserIdResult = $newUserIdQuery->fetch_assoc();
+                        $newUserId = (int)$newUserIdResult['id']; 
+
+                        $countCategoryRowsQuery = $connection->query("SELECT * FROM `incomes_category_default`");
+                        $countCategoryRows = $countCategoryRowsQuery->num_rows;
+                        $numCategoryRows = (int)$countCategoryRows; 
+                        
+                        for ($i = 1; $i <= $numCategoryRows; $i++) {
+                            $categoryNameQuery = $connection->query("SELECT name FROM `incomes_category_default` WHERE id=$i");
+                            $categoryNameResult = $categoryNameQuery->fetch_assoc();
+                            $categoryName = strval($categoryNameResult['name']);
+                            $connection->query("INSERT INTO incomes_category_assigned_to_users VALUES(NULL, '$newUserId', '$categoryName')");
+                        }
+
+                        $newUserIdQuery->close();
+                        $countCategoryRowsQuery->close();
+
                         header('Location: login.php');
                     } else {
                         throw new Exception($connection->error);
