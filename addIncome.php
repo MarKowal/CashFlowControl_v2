@@ -1,3 +1,49 @@
+<?php
+    session_start();
+
+    if(!isset($_SESSION['isLogged'])){
+        header('Location: index.php');
+        exit();
+    }
+
+    if(isset($_POST['amount'])){
+
+        require_once "connect.php";
+        mysqli_report(MYSQLI_REPORT_STRICT);
+
+        try{
+            $connection = new mysqli($host, $db_user, $db_password, $db_name);
+            if($connection->connect_errno != 0){
+                throw new Exception(mysqli_connect_errno());
+            }
+            else {
+                $amount = $_POST['amount'];
+                $date = $_POST['date'];
+                $incomeCategory = $_POST['incomeCategory'];
+                $userID = $_SESSION['id'];
+
+                $choosenCategoryQuery = $connection->query("SELECT id FROM `incomes_category_assigned_to_users` WHERE user_id='$userID' AND name='$incomeCategory'");
+                $choosenCategoryResult = $choosenCategoryQuery->fetch_assoc();
+                $choosenCategoryId = $choosenCategoryResult['id']; 
+
+                if($connection->query("INSERT INTO incomes VALUES(NULL, '$userID', '$choosenCategoryId', '$amount', '$date', 'some comment')")){
+                
+                $choosenCategoryQuery->close();
+
+                header('Location: mainMenu.php');
+                } else {
+                    throw new Exception($connection->error);
+                }
+            }
+            $connection->close();
+        } 
+        catch(Exception){
+            echo '<span style="color:red;">Server error! Please add income later.</span>';
+        }
+    }
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,34 +136,34 @@
         </div>
     </nav>
 
-    <form>
+    <form method="post">
         <div class="container">
             <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
                 <h2 class="display-4 py-3 mb-0 d-flex justify-content-center" style="background-color: #F1FAEE">Add Income:</h2>
                 <div class="col-10 col-sm-8 col-lg-6 col-xl-4">
                     <div class="input-group pt-3">
                         <span class="input-group-text">Amount</span>
-                        <input type="text" class="form-control" placeholder="$$$">
+                        <input type="number" class="form-control" placeholder="0,0 $" required min="0" step="0.01" name="amount">
                     </div>
                     <div class="input-group py-3">
                         <span class="input-group-text">Date</span>
-                        <input type="date" class="form-control">
+                        <input type="date" class="form-control" required name="date">
                     </div>
                     <p class="fs-4 mt-3 mb-1">Category of income:</p>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="incomeCategory" id="incomeCat1">
+                        <input class="form-check-input" type="radio" name="incomeCategory" id="incomeCat1" value="salary">
                         <label class="form-check-label" for="incomeCat1">salary</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="incomeCategory" id="incomeCat2">
+                        <input class="form-check-input" type="radio" name="incomeCategory" id="incomeCat2" value="bank interest">
                         <label class="form-check-label" for="incomeCat2">bank interest</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="incomeCategory" id="incomeCat3">
+                        <input class="form-check-input" type="radio" name="incomeCategory" id="incomeCat3" value="online sales">
                         <label class="form-check-label" for="incomeCat3">online sales</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="incomeCategory" id="incomeCat4">
+                        <input class="form-check-input" type="radio" name="incomeCategory" id="incomeCat4" value="other">
                         <label class="form-check-label" for="incomeCat4">other</label>
                     </div>
                     <div class="input-group py-3">

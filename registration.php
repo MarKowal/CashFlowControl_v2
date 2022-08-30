@@ -86,7 +86,8 @@
 
                         $newUserIdQuery->close();
                         $countCategoryRowsQuery->close();
-
+                        $categoryNameQuery->close();
+                        
                         header('Location: login.php');
                     } else {
                         throw new Exception($connection->error);
@@ -241,7 +242,7 @@
                                 </svg>
                             </span>
                         </div>
-                        <input type="password" class="form-control" placeholder="type your password (min. 8 characters)" required minlength="8" required name="password1">
+                        <input type="password" class="form-control" placeholder="type your password (min. 8 characters)" minlength="8" required name="password1">
                     </div>   
                     <?php
                         if(isset($_SESSION['e_password'])){
@@ -257,7 +258,7 @@
                                 </svg>
                             </span>
                         </div>
-                        <input type="password" class="form-control" placeholder="confirm your password" required minlength="8" required name="password2">
+                        <input type="password" class="form-control" placeholder="confirm your password" minlength="8" required name="password2">
                     </div> 
                     <div class="col d-flex justify-content-evenly py-5">
                         <button class="btn btn-lg btn-danger">Submit

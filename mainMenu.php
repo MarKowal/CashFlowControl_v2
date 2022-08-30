@@ -110,7 +110,9 @@
         <div class="container ">
             <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
                 <div class="col-10 col-sm-8 col-lg-6 col-xl-4 py-5 d-flex justify-content-evenly">
-                    <button type="button" class="btn btn-danger btn-lg">Add Income</button>
+                    <a href="addIncome.php">
+                        <button type="button" class="btn btn-danger btn-lg">Add Income</button>
+                    </a>
                     <button type="button" class="btn btn-danger btn-lg">Add Expense</button>
                 </div>   
             </div>       
