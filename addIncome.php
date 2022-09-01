@@ -22,13 +22,13 @@
                 $incomeCategory = $_POST['incomeCategory'];
                 $userID = $_SESSION['id'];
 
-                $choosenCategoryQuery = $connection->query("SELECT id FROM `incomes_category_assigned_to_users` WHERE user_id='$userID' AND name='$incomeCategory'");
-                $choosenCategoryResult = $choosenCategoryQuery->fetch_assoc();
-                $choosenCategoryId = $choosenCategoryResult['id']; 
+                $choosenIncomeCategoryQuery = $connection->query("SELECT id FROM `incomes_category_assigned_to_users` WHERE user_id='$userID' AND name='$incomeCategory'");
+                $choosenIncomeCategoryResult = $choosenIncomeCategoryQuery->fetch_assoc();
+                $choosenIncomeCategoryId = $choosenIncomeCategoryResult['id']; 
 
-                if($connection->query("INSERT INTO incomes VALUES(NULL, '$userID', '$choosenCategoryId', '$amount', '$date', 'some comment')")){
+                if($connection->query("INSERT INTO incomes VALUES(NULL, '$userID', '$choosenIncomeCategoryId', '$amount', '$date', 'some comment')")){
                 
-                $choosenCategoryQuery->close();
+                $choosenIncomeCategoryQuery->close();
 
                 header('Location: mainMenu.php');
                 } else {
@@ -37,8 +37,10 @@
             }
             $connection->close();
         } 
-        catch(Exception){
-            echo '<span style="color:red;">Server error! Please add income later.</span>';
+        catch(Exception $e){
+            echo '<span style="color:red;">Server error! Please add income later.</span>.<br>';
+            //var_dump($e->getMessage());
+            //echo $e;
         }
     }
 ?>
@@ -143,7 +145,7 @@
                 <div class="col-10 col-sm-8 col-lg-6 col-xl-4">
                     <div class="input-group pt-3">
                         <span class="input-group-text">Amount</span>
-                        <input type="number" class="form-control" placeholder="0,0 $" required min="0" step="0.01" name="amount">
+                        <input type="number" class="form-control" placeholder="0,00 $" required min="0" step="0.01" name="amount">
                     </div>
                     <div class="input-group py-3">
                         <span class="input-group-text">Date</span>

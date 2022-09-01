@@ -72,22 +72,44 @@
                         $newUserIdQuery = $connection->query("SELECT id FROM `users` ORDER BY id DESC LIMIT 1");
                         $newUserIdResult = $newUserIdQuery->fetch_assoc();
                         $newUserId = (int)$newUserIdResult['id']; 
-
-                        $countCategoryRowsQuery = $connection->query("SELECT * FROM `incomes_category_default`");
-                        $countCategoryRows = $countCategoryRowsQuery->num_rows;
-                        $numCategoryRows = (int)$countCategoryRows; 
-                        
-                        for ($i = 1; $i <= $numCategoryRows; $i++) {
-                            $categoryNameQuery = $connection->query("SELECT name FROM `incomes_category_default` WHERE id=$i");
-                            $categoryNameResult = $categoryNameQuery->fetch_assoc();
-                            $categoryName = strval($categoryNameResult['name']);
-                            $connection->query("INSERT INTO incomes_category_assigned_to_users VALUES(NULL, '$newUserId', '$categoryName')");
-                        }
-
                         $newUserIdQuery->close();
-                        $countCategoryRowsQuery->close();
-                        $categoryNameQuery->close();
+
+                        $countIncomesCategoryQuery = $connection->query("SELECT * FROM `incomes_category_default`");
+                        $countIncomesCategoryResult = $countIncomesCategoryQuery->num_rows;
+                        $numOfIncomesCategoryRows = (int)$countIncomesCategoryResult; 
+                        for ($i = 1; $i <= $numOfIncomesCategoryRows; $i++) {
+                            $incomeCategoryNameQuery = $connection->query("SELECT name FROM `incomes_category_default` WHERE id=$i");
+                            $incomeCategoryNameResult = $incomeCategoryNameQuery->fetch_assoc();
+                            $incomeCategoryName = strval($incomeCategoryNameResult['name']);
+                            $connection->query("INSERT INTO incomes_category_assigned_to_users VALUES(NULL, '$newUserId', '$incomeCategoryName')");
+                        }
+                        $countIncomesCategoryQuery->close();
+                        $incomeCategoryNameQuery->close();
                         
+                        $countPaymentCategoryQuery = $connection->query("SELECT * FROM `payment_methods_default`");
+                        $countPaymentCategoryResult = $countPaymentCategoryQuery->num_rows;
+                        $numOfPaymentCategoryRows = (int)$countPaymentCategoryResult; 
+                        for ($i = 1; $i <= $numOfPaymentCategoryRows; $i++) {
+                            $paymentCategoryNameQuery = $connection->query("SELECT name FROM `payment_methods_default` WHERE id=$i");
+                            $paymentCategoryNameResult = $paymentCategoryNameQuery->fetch_assoc();
+                            $paymentCategoryName = strval($paymentCategoryNameResult['name']);
+                            $connection->query("INSERT INTO payment_methods_assigned_to_users VALUES(NULL, '$newUserId', '$paymentCategoryName')");
+                        }
+                        $countPaymentCategoryQuery->close();
+                        $paymentCategoryNameQuery->close();
+
+                        $countExpensesCategoryQuery = $connection->query("SELECT * FROM `expenses_category_default`");
+                        $countExpensesCategoryResult = $countExpensesCategoryQuery->num_rows;
+                        $numOfExpensesCategoryRows = (int)$countExpensesCategoryResult; 
+                        for ($i = 1; $i <= $numOfExpensesCategoryRows; $i++) {
+                            $expenseCategoryNameQuery = $connection->query("SELECT name FROM `expenses_category_default` WHERE id=$i");
+                            $expenseCategoryNameResult = $expenseCategoryNameQuery->fetch_assoc();
+                            $expenseCategoryName = strval($expenseCategoryNameResult['name']);
+                            $connection->query("INSERT INTO expenses_category_assigned_to_users VALUES(NULL, '$newUserId', '$expenseCategoryName')");
+                        }
+                        $countExpensesCategoryQuery->close();
+                        $expenseCategoryNameQuery->close();
+
                         header('Location: login.php');
                     } else {
                         throw new Exception($connection->error);

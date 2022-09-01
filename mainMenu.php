@@ -113,7 +113,9 @@
                     <a href="addIncome.php">
                         <button type="button" class="btn btn-danger btn-lg">Add Income</button>
                     </a>
-                    <button type="button" class="btn btn-danger btn-lg">Add Expense</button>
+                    <a href="addExpense.php">
+                        <button type="button" class="btn btn-danger btn-lg">Add Expense</button>
+                    </a>
                 </div>   
             </div>       
         </div>

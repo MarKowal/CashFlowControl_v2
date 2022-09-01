@@ -1,3 +1,53 @@
+<?php
+    session_start();
+
+    if(!isset($_SESSION['isLogged'])){
+        header('Location: index.php');
+        exit();
+    }
+
+    if(isset($_POST['amount'])){
+        
+        require_once "connect.php";
+        mysqli_report(MYSQLI_REPORT_STRICT);
+
+        try{
+            $connection = new mysqli($host, $db_user, $db_password, $db_name);
+            if($connection->connect_errno != 0){
+                throw new Exception(mysqli_connect_errno());
+            }
+            else {
+                $amount = $_POST['amount'];
+                $date = $_POST['date'];
+                $payCategory = $_POST['payCategory'];
+                $expenseCategory = $_POST['expenseCategory'];
+                $userID = $_SESSION['id'];
+
+                $choosenPayCategoryQuery = $connection->query("SELECT id FROM `payment_methods_assigned_to_users` WHERE user_id='$userID' AND name='$payCategory'");
+                $choosenPayCategoryResult = $choosenPayCategoryQuery->fetch_assoc();
+                $choosenPayCategoryId = $choosenPayCategoryResult['id']; 
+                
+                $choosenExpenseCategoryQuery = $connection->query("SELECT id FROM `expenses_category_assigned_to_users` WHERE user_id='$userID' AND name='$expenseCategory'");
+                $choosenExpenseCategoryResult = $choosenExpenseCategoryQuery->fetch_assoc();
+                $choosenExpenseCategoryId = $choosenExpenseCategoryResult['id']; 
+
+                if($connection->query("INSERT INTO expenses VALUES(NULL, '$userID', '$choosenExpenseCategoryId','$choosenPayCategoryId', '$amount', '$date', 'some comment')")){
+                
+                $choosenPayCategoryQuery->close();
+                $choosenExpenseCategoryQuery->close();
+
+                header('Location: mainMenu.php');
+                }
+            }      
+            $connection->close();  
+        }
+        catch(Exception $e){
+            echo '<span style="color:red;">Server error! Please add expense later.</span>';
+            //var_dump($e->getMessage());
+        }
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,103 +140,103 @@
         </div>
     </nav>
 
-    <form>
+    <form method="post">
         <div class="container">
             <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
-                <h2 class="display-4 py-3 mb-0 d-flex justify-content-center class="fw-bold"" style="background-color: #F1FAEE">Add Expense:</h2>
+                <h2 class="display-4 py-3 mb-0 d-flex justify-content-center" class="fw-bold" style="background-color: #F1FAEE">Add Expense:</h2>
                 <div class="col-10 col-sm-8 col-lg-6 col-xl-4">
                     <div class="input-group pt-3">
                         <span class="input-group-text">Amount</span>
-                        <input type="text" class="form-control" placeholder="$$$">
+                        <input type="number" class="form-control" placeholder="0,00 $" required min="0" step="0.01" name="amount">
                     </div>
                     <div class="input-group py-3">
                         <span class="input-group-text">Date</span>
-                        <input type="date" class="form-control">
+                        <input type="date" class="form-control" required name="date">
                     </div>
                     <p class="fs-4 mt-3 mb-1">Means of payment:</p>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payCategory" id="payCat1">
+                        <input class="form-check-input" type="radio" name="payCategory" id="payCat1" value="cash">
                         <label class="form-check-label" for="payCat1">cash</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payCategory" id="payCat2">
+                        <input class="form-check-input" type="radio" name="payCategory" id="payCat2" value="credit card">
                         <label class="form-check-label" for="payCat2">credit card</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payCategory" id="payCat3">
+                        <input class="form-check-input" type="radio" name="payCategory" id="payCat3" value="debit card">
                         <label class="form-check-label" for="payCat3">debit card</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payCategory" id="payCat4">
+                        <input class="form-check-input" type="radio" name="payCategory" id="payCat4" value="bank transfer">
                         <label class="form-check-label" for="payCat4">bank transfer</label>
                     </div>
                     <p class="fs-4 mt-3 mb-1">Category of expense:</p>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat1">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat1" value="food">
                         <label class="form-check-label" for="expCat1">food</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat2">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat2" value="apartment">
                         <label class="form-check-label" for="expCat2">apartment</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat3">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat3" value="transport">
                         <label class="form-check-label" for="expCat3">transport</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat4">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat4" value="telecommunication">
                         <label class="form-check-label" for="expCat4">telecommunication</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat5">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat5" value="health care">
                         <label class="form-check-label" for="expCat5">health care</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat6">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat6" value="clothes">
                         <label class="form-check-label" for="expCat6">clothes</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat7">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat7" value="hygiene">
                         <label class="form-check-label" for="expCat7">hygiene</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat8">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat8" value="children">
                         <label class="form-check-label" for="expCat8">children</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat9">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat9" value="entertainment">
                         <label class="form-check-label" for="expCat9">entertainment</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat10">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat10" value="tour">
                         <label class="form-check-label" for="expCat10">tour</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat11">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat11" value="training">
                         <label class="form-check-label" for="expCat11">training</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat12">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat12" value="books">
                         <label class="form-check-label" for="expCat12">books</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat13">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat13" value="savings">
                         <label class="form-check-label" for="expCat13">savings</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat14">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat14" value="retirement">
                         <label class="form-check-label" for="expCat14">retirement</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat15">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat15" value="debt payment">
                         <label class="form-check-label" for="expCat15">debt payment</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat16">
-                        <label class="form-check-label" for="expCat16">donatin</label>
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat16" value="donation">
+                        <label class="form-check-label" for="expCat16">donation</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat17">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat17" value="other">
                         <label class="form-check-label" for="expCat17">other</label>
                     </div>
                     <div class="input-group py-3">
