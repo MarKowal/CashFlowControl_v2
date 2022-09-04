@@ -70,15 +70,18 @@
                         "INSERT INTO users VALUES(NULL, '$nick', '$password_hash', '$email')")){
                         
                         $newUserIdQuery = $connection->query("SELECT id FROM `users` ORDER BY id DESC LIMIT 1");
+                        if(!$newUserIdQuery) throw new Exception($connection->error);
                         $newUserIdResult = $newUserIdQuery->fetch_assoc();
                         $newUserId = (int)$newUserIdResult['id']; 
                         $newUserIdQuery->close();
 
                         $countIncomesCategoryQuery = $connection->query("SELECT * FROM `incomes_category_default`");
+                        if(!$countIncomesCategoryQuery) throw new Exception($connection->error);
                         $countIncomesCategoryResult = $countIncomesCategoryQuery->num_rows;
                         $numOfIncomesCategoryRows = (int)$countIncomesCategoryResult; 
                         for ($i = 1; $i <= $numOfIncomesCategoryRows; $i++) {
                             $incomeCategoryNameQuery = $connection->query("SELECT name FROM `incomes_category_default` WHERE id=$i");
+                            if(!$incomeCategoryNameQuery) throw new Exception($connection->error);
                             $incomeCategoryNameResult = $incomeCategoryNameQuery->fetch_assoc();
                             $incomeCategoryName = strval($incomeCategoryNameResult['name']);
                             $connection->query("INSERT INTO incomes_category_assigned_to_users VALUES(NULL, '$newUserId', '$incomeCategoryName')");
@@ -87,10 +90,12 @@
                         $incomeCategoryNameQuery->close();
                         
                         $countPaymentCategoryQuery = $connection->query("SELECT * FROM `payment_methods_default`");
+                        if(!$countPaymentCategoryQuery) throw new Exception($connection->error);
                         $countPaymentCategoryResult = $countPaymentCategoryQuery->num_rows;
                         $numOfPaymentCategoryRows = (int)$countPaymentCategoryResult; 
                         for ($i = 1; $i <= $numOfPaymentCategoryRows; $i++) {
                             $paymentCategoryNameQuery = $connection->query("SELECT name FROM `payment_methods_default` WHERE id=$i");
+                            if(!$paymentCategoryNameQuery) throw new Exception($connection->error);
                             $paymentCategoryNameResult = $paymentCategoryNameQuery->fetch_assoc();
                             $paymentCategoryName = strval($paymentCategoryNameResult['name']);
                             $connection->query("INSERT INTO payment_methods_assigned_to_users VALUES(NULL, '$newUserId', '$paymentCategoryName')");
@@ -99,10 +104,12 @@
                         $paymentCategoryNameQuery->close();
 
                         $countExpensesCategoryQuery = $connection->query("SELECT * FROM `expenses_category_default`");
+                        if(!$countExpensesCategoryQuery) throw new Exception($connection->error);
                         $countExpensesCategoryResult = $countExpensesCategoryQuery->num_rows;
                         $numOfExpensesCategoryRows = (int)$countExpensesCategoryResult; 
                         for ($i = 1; $i <= $numOfExpensesCategoryRows; $i++) {
                             $expenseCategoryNameQuery = $connection->query("SELECT name FROM `expenses_category_default` WHERE id=$i");
+                            if(!$expenseCategoryNameQuery) throw new Exception($connection->error);
                             $expenseCategoryNameResult = $expenseCategoryNameQuery->fetch_assoc();
                             $expenseCategoryName = strval($expenseCategoryNameResult['name']);
                             $connection->query("INSERT INTO expenses_category_assigned_to_users VALUES(NULL, '$newUserId', '$expenseCategoryName')");
@@ -115,13 +122,12 @@
                         throw new Exception($connection->error);
                     }
                 }
-
                 $connection->close();
             }
         } 
         catch(Exception $e){
-            echo '<span style="color:red;">Server error! Please register later.</span>';
-            //echo $e;
+            echo '<span style="color:red;"><b>Server error! Please try later</b></span><br>';
+            var_dump($e->getMessage());
         }
     }
 ?>
@@ -153,7 +159,7 @@
             </button>
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <div class="navbar-nav">
-                    <a href="#" class="nav-item nav-link">
+                    <a href="index.php" class="nav-item nav-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
                             <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4H2.5z"/>
                         </svg> 
@@ -163,7 +169,7 @@
             </div>
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <div class="navbar-nav">
-                    <a href="#" class="nav-item nav-link disabled">
+                    <a href="addIncome.php" class="nav-item nav-link disabled">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-coin" viewBox="0 0 16 16">
                             <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z"/>
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -175,7 +181,7 @@
             </div>
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <div class="navbar-nav">
-                    <a href="#" class="nav-item nav-link disabled">
+                    <a href="addExpense.php" class="nav-item nav-link disabled">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-cart4" viewBox="0 0 16 16">
                             <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zM8 8H6v2h2V8zM5 8H3.89l.5 2H5V8zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
                         </svg>
@@ -185,7 +191,7 @@
             </div>
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <div class="navbar-nav">
-                    <a href="#" class="nav-item nav-link disabled">
+                    <a href="balanceSheet.php" class="nav-item nav-link disabled">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-clipboard-data" viewBox="0 0 16 16">
                             <path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0v-1zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0V7zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0V9z"/>
                             <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
@@ -287,13 +293,6 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-check-square" viewBox="0 0 16 16">
                                 <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z"/>
-                            </svg>
-                        </button>
-
-                        <button class="btn btn-lg btn-secondary">Cancel
-                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                             </svg>
                         </button>
                     </div>
