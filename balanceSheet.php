@@ -35,6 +35,7 @@
     $selectedEndDateString = $selectedEndDate->format('Y-m-d');
     $userID = $_SESSION['id'];
     $incomesTotal = 0;
+    $expensesTotal = 0;
 
     require_once "connect.php";
     try{
@@ -44,13 +45,22 @@
         }
         else {
             $incomesResult = $connection->query("SELECT incomes.inc_cat_assigned_user_id, SUM(incomes.amount) 
-            AS amountOfIncomesByCategoryAndPeriodOfTime FROM incomes, incomes_category_assigned_to_users WHERE incomes.user_id = '$userID' AND incomes. date_of_income BETWEEN '$selectedStartDateString' AND '$selectedEndDateString' AND incomes.inc_cat_assigned_user_id = incomes_category_assigned_to_users.id 
+            AS amountOfIncomesByCategoryAndPeriodOfTime FROM incomes, incomes_category_assigned_to_users WHERE incomes.user_id = '$userID' AND incomes.date_of_income BETWEEN '$selectedStartDateString' AND '$selectedEndDateString' AND incomes.inc_cat_assigned_user_id = incomes_category_assigned_to_users.id 
             GROUP BY incomes.inc_cat_assigned_user_id ORDER BY amountOfIncomesByCategoryAndPeriodOfTime DESC"); 
             if(!$incomesResult) throw new Exception($connection->error);
 
             $incomesCategoriesNamesForUser = $connection->query("SELECT * FROM incomes_category_assigned_to_users WHERE user_id = '$userID'");
             if(!$incomesCategoriesNamesForUser) throw new Exception($connection->error);
             $allIncomesCategoriesNamesForUser = $incomesCategoriesNamesForUser->fetch_all(MYSQLI_ASSOC);
+
+            $expensesResult = $connection->query("SELECT expenses.exp_cat_assigned_user_id, SUM(expenses.amount)
+            AS amountOfExpensesByCategoryAndPeriodOfTime FROM expenses, expenses_category_assigned_to_users WHERE expenses.user_id = '$userID' AND expenses.date_of_expense BETWEEN '$selectedStartDateString' AND '$selectedEndDateString' AND expenses.exp_cat_assigned_user_id = expenses_category_assigned_to_users.id
+            GROUP BY expenses.exp_cat_assigned_user_id ORDER BY amountOfExpensesByCategoryAndPeriodOfTime DESC");
+            if(!$expensesResult) throw new Exception($connection->error);
+
+            $expensesCategoriesNamesForUser = $connection->query("SELECT * FROM expenses_category_assigned_to_users WHERE user_id = '$userID'");
+            if(!$expensesCategoriesNamesForUser) throw new Exception($connection->error);
+            $allExpensesCategoriesNamesForUser = $expensesCategoriesNamesForUser->fetch_all(MYSQLI_ASSOC);
         }
         $connection->close();  
     } 
@@ -58,8 +68,6 @@
             echo '<span style="color:red;"><b>Server error! Please try later</b></span><br>';
             var_dump($e->getMessage());
     }
-
-
 ?>
 
 <!DOCTYPE html>
@@ -232,7 +240,7 @@
                             <?php
                                 $iteration = 1;
                                 while($row = $incomesResult->fetch_assoc()){
-                                    for($rowsNumber=0; $rowsNumber<count($allIncomesCategoriesNamesForUser);$rowsNumber++){
+                                    for($rowsNumber=0; $rowsNumber<count($allIncomesCategoriesNamesForUser); $rowsNumber++){
                                         if($row['inc_cat_assigned_user_id'] == $allIncomesCategoriesNamesForUser[$rowsNumber]['id']){
                                             $row['inc_cat_assigned_user_id'] = $allIncomesCategoriesNamesForUser[$rowsNumber]['name'];
                                             break;
@@ -248,6 +256,7 @@
                                     $incomesTotal = $incomesTotal + $row['amountOfIncomesByCategoryAndPeriodOfTime'];
                                 }
                                 $incomesResult->close();
+                                $incomesCategoriesNamesForUser->close();
                             ?>
                         </tbody>
                         <tfoot class="fs-5">
@@ -273,36 +282,37 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>food</td>
-                                <td class="text-end">6.000,00</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>clothes</td>
-                                <td class="text-end">940,00</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>health care</td>
-                                <td class="text-end">1.178,19</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">4</th>
-                                <td>entertainment</td>
-                                <td class="text-end">1.178,19</td>
-                            </tr> <tr>
-                                <th scope="row">5</th>
-                                <td>debt payment</td>
-                                <td class="text-end">1.178,19</td>
-                            </tr>
+                            <?php
+                                $iteration = 1;
+                                while($row = $expensesResult->fetch_assoc()){
+                                    for($rowsNumber=0; $rowsNumber<count($allExpensesCategoriesNamesForUser); $rowsNumber++){
+                                        if($row['exp_cat_assigned_user_id'] == $allExpensesCategoriesNamesForUser[$rowsNumber]['id']){
+                                            $row['exp_cat_assigned_user_id'] = $allExpensesCategoriesNamesForUser[$rowsNumber]['name'];
+                                            break;
+                                        }
+                                    }
+                                    echo 
+                                    "<tr>
+                                        <td><b>".$iteration.".</b></td>
+                                        <td>".$row['exp_cat_assigned_user_id'].'</td>
+                                        <td class="text-end">'."$ ".number_format($row['amountOfExpensesByCategoryAndPeriodOfTime'], 2)."</td>
+                                    </tr>";
+                                    $iteration++;
+                                    $expensesTotal = $expensesTotal + $row['amountOfExpensesByCategoryAndPeriodOfTime'];
+                                }
+                                $expensesResult->close();
+                                $expensesCategoriesNamesForUser->close();
+                            ?>
                         </tbody>
                         <tfoot class="fs-5">
                             <tr>
                                 <th scope="row"></th>
                                 <td class="fw-bold">Total Expenses</td>
-                                <td class="text-end fw-bold">100.000,00</td>
+                                <td class="text-end fw-bold">
+                                    <?php
+                                        echo "$ ".number_format($expensesTotal, 2);
+                                    ?>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
