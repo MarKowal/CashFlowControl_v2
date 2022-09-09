@@ -5,15 +5,60 @@
         header('Location: index.php');
         exit();}
         
-    $show = NULL;
+    /*$banner = NULL;
     if(isset($_POST['timePeriod'])){
         $selected = $_POST['timePeriod'];  
         if($selected == "previousMonth"){
-            $show = "redBanner";
+            $banner = "redBanner";
         } else if ($selected == "presentYear"){
-            $show = "greenBanner";
+            $banner = "greenBanner";
         }        
+    }*/
+
+    $selectedStartDate = new DateTime();
+    $selectedEndDate = new DateTime(); //tu jako aktualny czas
+    if(isset($_POST['timePeriod'])){
+        $timePeriod = $_POST['timePeriod'];  
+        if($timePeriod == "presentMonth"){
+            $selectedStartDate = $selectedStartDate->modify('first day of this month');
+        } else if($timePeriod == "previousMonth"){
+            $selectedStartDate = $selectedStartDate->modify('first day of last month');
+            $selectedEndDate = $selectedEndDate->modify('last day of last month');
+        } else if($timePeriod == "presentYear"){
+            $selectedStartDate = $selectedStartDate->modify('1 January this year');
+        } else if($timePeriod == "other"){ 
+            //other - trzeba zrobić wyskakujace okienko Modal z Bootstrapa i dwie daty musi user podac poczatkowa i koncowa
+        }
+        
     }
+    $selectedStartDateString = $selectedStartDate->format('Y-m-d');
+    $selectedEndDateString = $selectedEndDate->format('Y-m-d');
+    $userID = $_SESSION['id'];
+    $incomesTotal = 0;
+
+    require_once "connect.php";
+    try{
+        $connection = new mysqli($host, $db_user, $db_password, $db_name);
+        if($connection->connect_errno != 0){
+            throw new Exception(mysqli_connect_errno());
+        }
+        else {
+            $incomesResult = $connection->query("SELECT incomes.inc_cat_assigned_user_id, SUM(incomes.amount) 
+            AS amountOfIncomesByCategoryAndPeriodOfTime FROM incomes, incomes_category_assigned_to_users WHERE incomes.user_id = '$userID' AND incomes. date_of_income BETWEEN '$selectedStartDateString' AND '$selectedEndDateString' AND incomes.inc_cat_assigned_user_id = incomes_category_assigned_to_users.id 
+            GROUP BY incomes.inc_cat_assigned_user_id ORDER BY amountOfIncomesByCategoryAndPeriodOfTime DESC"); 
+            if(!$incomesResult) throw new Exception($connection->error);
+
+            $incomesCategoriesNamesForUser = $connection->query("SELECT * FROM incomes_category_assigned_to_users WHERE user_id = '$userID'");
+            if(!$incomesCategoriesNamesForUser) throw new Exception($connection->error);
+            $allIncomesCategoriesNamesForUser = $incomesCategoriesNamesForUser->fetch_all(MYSQLI_ASSOC);
+        }
+        $connection->close();  
+    } 
+    catch(Exception $e){
+            echo '<span style="color:red;"><b>Server error! Please try later</b></span><br>';
+            var_dump($e->getMessage());
+    }
+
 
 ?>
 
@@ -129,15 +174,6 @@
                             </svg>
                         </button>
                     </div>
-                   
-               
-                    <?php
-                       // https://www.positronx.io/how-to-get-selected-values-from-select-option-in-php/
-                       // https://www.phptutorial.net/php-tutorial/php-select-option/
-                       // https://www.youtube.com/watch?v=ntNkP8X1__I
-
-
-                    ?>
                 </div>
             </div>       
         </div>
@@ -155,19 +191,25 @@
                           <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                         </symbol>
                     </svg>
-                    <?php               
-                            //próba jak sie zachowuje wartość zmiennej            
-                            if($show == "redBanner"){
+                    <?php            
+                            echo $_SESSION['user']." siemanko!.<br>";
+                            echo "Twoj numer ID to: ".$_SESSION['id']."<br>";  
+                            //echo $selectedStartDate->format('Y-m-d')."<br>";
+                            //echo $selectedEndDate->format('Y-m-d')."<br>";
+                            echo $selectedStartDateString."<br>";
+                            echo $selectedEndDateString;
+                            /*próba jak sie zachowuje wartość zmiennej            
+                            if($banner == "redBanner"){
                                 echo '<div class="alert alert-danger d-flex align-items-center" role="alert">
                                 <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                                 <div>YOU ARE BROKEN AS HELL!</div>
                                 </div>';
-                            } else if ($show == "greenBanner"){
+                            } else if ($banner == "greenBanner"){
                                 echo '<div class="alert alert-success d-flex align-items-center" role="alert">
                                 <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
                                 <div>SUCCESS YOU HAVE SAVINGS!</div>
                                 </div>';
-                            }
+                            }*/
                     ?>
                 </div>
             </div>
@@ -188,40 +230,35 @@
                         </thead>
                         <tbody>
                             <?php
-                                require_once "connect.php";
-                                try{
-                                    $connection = new mysqli($host, $db_user, $db_password, $db_name);
-                                    if($connection->connect_errno != 0){
-                                        throw new Exception(mysqli_connect_errno());
-                                    }
-                                    else {
-
-                                        $result = $connection->query("SELECT * FROM incomes");
-                                        if(!$result){
-                                            die("Invalid query: ".$connection->error);
-                                        }
-
-                                        while($row = $result->fetch_assoc()){
-                                            echo "<tr>
-                                                <td>". $row['id']."</td>
-                                                <td>". $row['inc_cat_assigned_user_id'].'</td>
-                                                <td class="text-end">'. $row['amount']."</td>
-                                            </tr>";
+                                $iteration = 1;
+                                while($row = $incomesResult->fetch_assoc()){
+                                    for($rowsNumber=0; $rowsNumber<count($allIncomesCategoriesNamesForUser);$rowsNumber++){
+                                        if($row['inc_cat_assigned_user_id'] == $allIncomesCategoriesNamesForUser[$rowsNumber]['id']){
+                                            $row['inc_cat_assigned_user_id'] = $allIncomesCategoriesNamesForUser[$rowsNumber]['name'];
+                                            break;
                                         }
                                     }
-                                    $connection->close();  
-                                } 
-                                catch(Exception $e){
-                                        echo '<span style="color:red;"><b>Server error! Please try later</b></span><br>';
-                                        var_dump($e->getMessage());
+                                    echo 
+                                    "<tr>
+                                        <td><b>".$iteration.".</b></td>
+                                        <td>".$row['inc_cat_assigned_user_id'].'</td>
+                                        <td class="text-end">'."$ ".number_format($row['amountOfIncomesByCategoryAndPeriodOfTime'], 2)."</td>
+                                    </tr>";
+                                    $iteration++;
+                                    $incomesTotal = $incomesTotal + $row['amountOfIncomesByCategoryAndPeriodOfTime'];
                                 }
+                                $incomesResult->close();
                             ?>
                         </tbody>
                         <tfoot class="fs-5">
                             <tr>
                                 <th scope="row"></th>
                                 <td class="fw-bold">Total Incomes</td>
-                                <td class="text-end fw-bold">20.000,00</td>
+                                <td class="text-end fw-bold">
+                                    <?php
+                                        echo "$ ".number_format($incomesTotal, 2);
+                                    ?>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
