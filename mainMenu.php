@@ -93,18 +93,23 @@
                             <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z"/>
                             <path d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117zM11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5zM4 1.934V15h6V1.077l-6 .857z"/>
                         </svg>
-                        Log Out
+                        <?php echo "Log out ".$_SESSION['user']; ?>
                     </a>
                 </div>
             </div>
         </div>
     </nav>
-    
-    <?php
-        echo $_SESSION['user']." siemanko!.<br>";
-        echo "Twoj numer ID to: ".$_SESSION['id']."<br>";
-        echo "Twoj numer ID_SESSION to: ".session_id();
-    ?>
+    <section>
+        <div class="container ">
+            <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
+                <h2 class="display-4 py-3 mb-0 d-flex justify-content-center" style="background-color: #F1FAEE">
+                    <?php
+                        echo "Welcome ".$_SESSION['user']." please choose:";
+                    ?>
+                </h2>
+            </div>       
+        </div>
+    </section>
 
     <section>
         <div class="container ">

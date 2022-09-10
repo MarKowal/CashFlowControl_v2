@@ -4,19 +4,9 @@
     if(!isset($_SESSION['isLogged'])){
         header('Location: index.php');
         exit();}
-        
-    /*$banner = NULL;
-    if(isset($_POST['timePeriod'])){
-        $selected = $_POST['timePeriod'];  
-        if($selected == "previousMonth"){
-            $banner = "redBanner";
-        } else if ($selected == "presentYear"){
-            $banner = "greenBanner";
-        }        
-    }*/
 
     $selectedStartDate = new DateTime();
-    $selectedEndDate = new DateTime(); //tu jako aktualny czas
+    $selectedEndDate = new DateTime(); 
     if(isset($_POST['timePeriod'])){
         $timePeriod = $_POST['timePeriod'];  
         if($timePeriod == "presentMonth"){
@@ -34,8 +24,8 @@
     $selectedStartDateString = $selectedStartDate->format('Y-m-d');
     $selectedEndDateString = $selectedEndDate->format('Y-m-d');
     $userID = $_SESSION['id'];
-    $incomesTotal = 0;
-    $expensesTotal = 0;
+    $incomesTotal = NULL;
+    $expensesTotal = NULL;
 
     require_once "connect.php";
     try{
@@ -155,7 +145,7 @@
                             <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z"/>
                             <path d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117zM11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5zM4 1.934V15h6V1.077l-6 .857z"/>
                         </svg>
-                        Log Out
+                        <?php echo "Log out ".$_SESSION['user']; ?>
                     </a>
                 </div>
             </div>
@@ -199,26 +189,6 @@
                           <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                         </symbol>
                     </svg>
-                    <?php            
-                            echo $_SESSION['user']." siemanko!.<br>";
-                            echo "Twoj numer ID to: ".$_SESSION['id']."<br>";  
-                            //echo $selectedStartDate->format('Y-m-d')."<br>";
-                            //echo $selectedEndDate->format('Y-m-d')."<br>";
-                            echo $selectedStartDateString."<br>";
-                            echo $selectedEndDateString;
-                            /*próba jak sie zachowuje wartość zmiennej            
-                            if($banner == "redBanner"){
-                                echo '<div class="alert alert-danger d-flex align-items-center" role="alert">
-                                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
-                                <div>YOU ARE BROKEN AS HELL!</div>
-                                </div>';
-                            } else if ($banner == "greenBanner"){
-                                echo '<div class="alert alert-success d-flex align-items-center" role="alert">
-                                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
-                                <div>SUCCESS YOU HAVE SAVINGS!</div>
-                                </div>';
-                            }*/
-                    ?>
                 </div>
             </div>
         </div>
@@ -227,7 +197,7 @@
     <section>
         <div class="container">
             <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
-                <div class="col-10 col-md-8 col-lg-6 p-5">
+                <div class="col-10 col-md-8 col-lg-6 p-3">
                     <table class="table table-striped">
                         <thead class="fs-5">
                             <tr>
@@ -272,7 +242,7 @@
                         </tfoot>
                     </table>
                 </div>
-                <div class="col-10 col-md-8 col-lg-6 p-5">
+                <div class="col-10 col-md-8 col-lg-6 p-3">
                     <table class="table table-striped">
                         <thead class="fs-5">
                             <tr>
@@ -325,7 +295,29 @@
         <div class="container">
             <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
                 <div class="col-4 py-2">
-                    <p class="fw-bold">HERE WILL BE A BALANCE (incomes - expenses)</p>
+                    <?php          
+                        if(isset($_POST['timePeriod'])){
+                            $diff = $incomesTotal - $expensesTotal;
+                            if ($diff < 0){
+                                echo 
+                                '<div class="alert alert-danger d-flex align-items-center" role="alert">
+                                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                                    <div><b>Unfortunately you have debts!<br>Balance = $ '.number_format($diff, 2).'</b></div>
+                                </div>';
+                            } elseif ($diff == 0){
+                                echo
+                                '<div class="alert alert-secondary d-flex align-items-center justify-content-center" role="alert">
+                                    <div><b>Zero, no savings and no debts!<br>Balance = $ '.number_format($diff, 2).'</b></div>
+                                </div>';
+                            } else {
+                                echo 
+                                '<div class="alert alert-success d-flex align-items-center" role="alert">
+                                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+                                    <div><b>Success you have savings!<br>Balance = $ '.number_format($diff, 2).'</b></div>
+                                </div>';
+                            }
+                        }
+                    ?>
                 </div>
             </div>
         </div>
@@ -335,7 +327,7 @@
         <div class="container">
             <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
                 <div class="col-4 py-2">
-                    <p class="fw-bold">HERE WILL BE A PIE CHART</p>
+                    <p>(next time here will be a pie chart)</p>
                 </div>
             </div>
         </div>

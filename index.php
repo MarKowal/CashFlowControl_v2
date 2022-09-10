@@ -1,3 +1,14 @@
+<?php
+    session_start();
+
+    //zabezpieczenie przed dostaniem sie zalogowanego usera:
+    if(isset($_SESSION['isLogged'])){
+        header('Location: mainMenu.php');
+        exit();
+    }
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
