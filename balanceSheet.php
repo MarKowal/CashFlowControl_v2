@@ -7,7 +7,10 @@
 
     $selectedStartDate = new DateTime();
     $selectedEndDate = new DateTime(); 
-    if(isset($_POST['timePeriod'])){
+    $selectedStartDateString = NULL;
+    $selectedEndDateString = NULL;
+    
+    if(isset($_POST['timePeriod'])){       
         $timePeriod = $_POST['timePeriod'];  
         if($timePeriod == "presentMonth"){
             $selectedStartDate = $selectedStartDate->modify('first day of this month');
@@ -19,10 +22,10 @@
         } else if($timePeriod == "other"){ 
             //other - trzeba zrobić wyskakujace okienko Modal z Bootstrapa i dwie daty musi user podac poczatkowa i koncowa
         }
-        
+        $selectedStartDateString = $selectedStartDate->format('Y-m-d');
+        $selectedEndDateString = $selectedEndDate->format('Y-m-d');    
     }
-    $selectedStartDateString = $selectedStartDate->format('Y-m-d');
-    $selectedEndDateString = $selectedEndDate->format('Y-m-d');
+
     $userID = $_SESSION['id'];
     $incomesTotal = NULL;
     $expensesTotal = NULL;
