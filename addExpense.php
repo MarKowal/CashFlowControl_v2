@@ -157,7 +157,7 @@
                     </div>
                     <p class="fs-4 mt-3 mb-1">Means of payment:</p>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payCategory" id="payCat1" value="cash">
+                        <input class="form-check-input" type="radio" name="payCategory" id="payCat1" value="cash" required>
                         <label class="form-check-label" for="payCat1">cash</label>
                     </div>
                     <div class="form-check">
@@ -174,7 +174,7 @@
                     </div>
                     <p class="fs-4 mt-3 mb-1">Category of expense:</p>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat1" value="food">
+                        <input class="form-check-input" type="radio" name="expenseCategory" id="expCat1" value="food" required>
                         <label class="form-check-label" for="expCat1">food</label>
                     </div>
                     <div class="form-check">

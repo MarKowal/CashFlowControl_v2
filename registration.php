@@ -66,8 +66,7 @@
                 }
 
                 if($goodInputs == true){
-                    if($connection->query(
-                        "INSERT INTO users VALUES(NULL, '$nick', '$password_hash', '$email')")){
+                    if($connection->query("INSERT INTO users VALUES(NULL, '$nick', '$password_hash', '$email')")){
                         
                         $newUserIdQuery = $connection->query("SELECT id FROM `users` ORDER BY id DESC LIMIT 1");
                         if(!$newUserIdQuery) throw new Exception($connection->error);
