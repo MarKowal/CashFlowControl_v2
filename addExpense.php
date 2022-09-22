@@ -8,6 +8,29 @@
 
     if(isset($_POST['amount'])){
         
+        $goodExpenseInputs = true;
+
+        $amount = $_POST['amount'];
+        
+        $date = $_POST['date'];
+        $test_arr = explode('-', $date);
+        if (checkdate($test_arr[1], $test_arr[2], $test_arr[0])) {
+            if($test_arr[0]<2000){
+                $goodExpenseInputs = false;
+                $_SESSION['e_date'] = 'Please choose date since 2000-01-01';
+            } elseif($test_arr[0]>2039) {
+                $goodExpenseInputs = false;
+                $_SESSION['e_date'] = 'Please choose date max till 2039-12-31';
+            }
+        } else {
+            $goodExpenseInputs = false;
+            $_SESSION['e_date'] = 'It is not a proper date!';
+        }
+
+        $payCategory = $_POST['payCategory'];
+        $expenseCategory = $_POST['expenseCategory'];
+        $userID = $_SESSION['id'];
+
         require_once "connect.php";
         mysqli_report(MYSQLI_REPORT_STRICT);
 
@@ -17,11 +40,11 @@
                 throw new Exception(mysqli_connect_errno());
             }
             else {
-                $amount = $_POST['amount'];
-                $date = $_POST['date'];
-                $payCategory = $_POST['payCategory'];
-                $expenseCategory = $_POST['expenseCategory'];
-                $userID = $_SESSION['id'];
+                //$amount = $_POST['amount'];
+                //$date = $_POST['date'];
+                //$payCategory = $_POST['payCategory'];
+                //$expenseCategory = $_POST['expenseCategory'];
+                //$userID = $_SESSION['id'];
 
                 $choosenPayCategoryQuery = $connection->query("SELECT id FROM `payment_methods_assigned_to_users` WHERE user_id='$userID' AND name='$payCategory'");
                 if(!$choosenPayCategoryQuery) throw new Exception($connection->error);
@@ -33,19 +56,28 @@
                 $choosenExpenseCategoryResult = $choosenExpenseCategoryQuery->fetch_assoc();
                 $choosenExpenseCategoryId = $choosenExpenseCategoryResult['id']; 
 
-                if($connection->query("INSERT INTO expenses VALUES(NULL, '$userID', '$choosenExpenseCategoryId','$choosenPayCategoryId', '$amount', '$date', 'some comment')")){
+                if($goodExpenseInputs == true){
+                    if($connection->query("INSERT INTO expenses VALUES(NULL, '$userID', '$choosenExpenseCategoryId','$choosenPayCategoryId', '$amount', '$date', 'some comment')")){
+                        $_SESSION['goodExpenseInputs'] = 'Expense has been added!';
+                        $choosenPayCategoryQuery->close();
+                        $choosenExpenseCategoryQuery->close();
+                    } else {
+                        throw new Exception($connection->error);
+                    }
+                }
+                /*if($connection->query("INSERT INTO expenses VALUES(NULL, '$userID', '$choosenExpenseCategoryId','$choosenPayCategoryId', '$amount', '$date', 'some comment')")){
                 
                 $choosenPayCategoryQuery->close();
                 $choosenExpenseCategoryQuery->close();
 
                 header('Location: mainMenu.php');
-                }
+                }*/
             }      
             $connection->close();  
         }
         catch(Exception $e){
-            echo '<span style="color:red;"><b>Server error! Please try later</b></span><br>';
-            var_dump($e->getMessage());
+            //var_dump($e->getMessage());
+            $_SESSION['exception'] = 'Server error! Please try later.';
         }
     }
 ?>
@@ -155,6 +187,12 @@
                         <span class="input-group-text">Date</span>
                         <input type="date" class="form-control" required name="date">
                     </div>
+                    <?php
+                        if(isset($_SESSION['e_date'])){
+                            echo '<div><span style="color:red"><b>'.$_SESSION['e_date'].'</b></span></div>';
+                            unset($_SESSION['e_date']);
+                        }
+                    ?>
                     <p class="fs-4 mt-3 mb-1">Means of payment:</p>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="payCategory" id="payCat1" value="cash" required>
@@ -244,6 +282,16 @@
                     <div class="input-group py-3">
                         <textarea class="form-control" placeholder="Describe the other"></textarea>
                     </div>
+                    <?php
+                        if(isset($_SESSION['goodExpenseInputs'])){
+                            echo '<div><span style="color:green"><b>'.$_SESSION['goodExpenseInputs'].'</b></span></div>';
+                            unset($_SESSION['goodExpenseInputs']);
+                        }
+                        if(isset($_SESSION['exception'])){
+                            echo '<div><span style="color:red"><b>'.$_SESSION['exception'].'</b></span></div>';
+                            unset($_SESSION['exception']);
+                        }
+                    ?>
                     <div class="col d-flex justify-content-evenly py-4">
                         <button class="btn btn-lg btn-danger">Submit
                             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-check-square" viewBox="0 0 16 16">
