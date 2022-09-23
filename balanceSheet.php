@@ -59,7 +59,8 @@
     } 
     catch(Exception $e){
             echo '<span style="color:red;"><b>Server error! Please try later</b></span><br>';
-            var_dump($e->getMessage());
+            //var_dump($e->getMessage());
+            //trzeba POPRAWIC wurzucanie bledu, zrobic jak w addIncome!
     }
 ?>
 
@@ -79,6 +80,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
     
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});  
+    </script>
+
+    
+
 </head>
 <body>
     <h1 class="text-center py-4 mb-0">$CashFlowControl</h1>
@@ -196,6 +204,7 @@
             </div>
         </div>
     </section>
+    
 
     <section>
         <div class="container">
@@ -212,6 +221,8 @@
                         <tbody>
                             <?php
                                 $iteration = 1;
+                                $categoryIncomeName = array();
+                                $valueIncome = array();
                                 while($row = $incomesResult->fetch_assoc()){
                                     for($rowsNumber=0; $rowsNumber<count($allIncomesCategoriesNamesForUser); $rowsNumber++){
                                         if($row['inc_cat_assigned_user_id'] == $allIncomesCategoriesNamesForUser[$rowsNumber]['id']){
@@ -227,6 +238,8 @@
                                     </tr>";
                                     $iteration++;
                                     $incomesTotal = $incomesTotal + $row['amountOfIncomesByCategoryAndPeriodOfTime'];
+                                    $categoryIncomeName[] = $row['inc_cat_assigned_user_id'];
+                                    $valueIncome[] = $row['amountOfIncomesByCategoryAndPeriodOfTime'];
                                 }
                                 $incomesResult->close();
                                 $incomesCategoriesNamesForUser->close();
@@ -257,6 +270,8 @@
                         <tbody>
                             <?php
                                 $iteration = 1;
+                                $categoryExpenseName = array();
+                                $valueExpense = array();
                                 while($row = $expensesResult->fetch_assoc()){
                                     for($rowsNumber=0; $rowsNumber<count($allExpensesCategoriesNamesForUser); $rowsNumber++){
                                         if($row['exp_cat_assigned_user_id'] == $allExpensesCategoriesNamesForUser[$rowsNumber]['id']){
@@ -272,6 +287,8 @@
                                     </tr>";
                                     $iteration++;
                                     $expensesTotal = $expensesTotal + $row['amountOfExpensesByCategoryAndPeriodOfTime'];
+                                    $categoryExpenseName[] = $row['exp_cat_assigned_user_id'];
+                                    $valueExpense[] = $row['amountOfExpensesByCategoryAndPeriodOfTime'];
                                 }
                                 $expensesResult->close();
                                 $expensesCategoriesNamesForUser->close();
@@ -297,6 +314,64 @@
     <section>
         <div class="container">
             <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
+                <div class="col-6 py-2">
+                    <script type="text/javascript">
+                        google.charts.setOnLoadCallback(drawChart);
+                        function drawChart() {
+
+                            var data = google.visualization.arrayToDataTable([
+                                ['Income category', 'Value'],
+                                <?php
+                                    for($i=0; $i<count($categoryIncomeName); $i++){
+                                        echo "['".$categoryIncomeName[$i]."',".$valueIncome[$i]."], ";
+                                    }
+                                ?>
+                            ]);
+
+                            var options = {
+                                title: 'INCOMES:'
+                            };
+
+                            var chart = new google.visualization.PieChart(document.getElementById('piechartIncomes'));
+
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <div id="piechartIncomes" style="width: 600px; height: 400px;"></div>
+                </div>
+                <div class="col-6 py-2">
+                    <script type="text/javascript">
+                        google.charts.setOnLoadCallback(drawChart);
+                        function drawChart() {
+
+                            var data = google.visualization.arrayToDataTable([
+                                ['Income category', 'Value'],
+                                <?php
+                                    for($i=0; $i<count($categoryExpenseName); $i++){
+                                        echo "['".$categoryExpenseName[$i]."',".$valueExpense[$i]."], ";
+                                    }
+                                ?>
+                            ]);
+
+                            var options = {
+                                title: 'EXPENSES:'
+                            };
+
+                            var chart = new google.visualization.PieChart(document.getElementById('piechartExpenses'));
+
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <div id="piechartExpenses" style="width: 600px; height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section>
+        <div class="container">
+            <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
                 <div class="col-4 py-2">
                     <?php          
                         if(isset($_POST['timePeriod'])){
@@ -304,7 +379,7 @@
                             if ($diff < 0){
                                 echo 
                                 '<div class="alert alert-danger d-flex align-items-center" role="alert">
-                                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                                    <svg class="bi flex-shrink-0 me-2" width="80" height="80" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                                     <div><b>Unfortunately you have debts!<br>Balance = $ '.number_format($diff, 2).'</b></div>
                                 </div>';
                             } elseif ($diff == 0){
@@ -315,7 +390,7 @@
                             } else {
                                 echo 
                                 '<div class="alert alert-success d-flex align-items-center" role="alert">
-                                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+                                    <svg class="bi flex-shrink-0 me-2" width="80" height="80" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
                                     <div><b>Success you have savings!<br>Balance = $ '.number_format($diff, 2).'</b></div>
                                 </div>';
                             }
@@ -325,17 +400,7 @@
             </div>
         </div>
     </section>
-
-    <section>
-        <div class="container">
-            <div class="row d-flex justify-content-center" style="background-color: #F1FAEE">
-                <div class="col-4 py-2">
-                    <p>(next time here will be a pie chart)</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
+    
     <footer>
         <div class="container">
             <div class="row">
